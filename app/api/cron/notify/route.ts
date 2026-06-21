@@ -12,7 +12,8 @@ const TICKER = process.env.NEXT_PUBLIC_TICKER || "7201.T";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nissan-ai-market-intelligence.vercel.app";
 
 /**
- * 毎日(引け後)に Vercel Cron が叩く。その日のシグナルをntfyでスマホへ通知。
+ * 平日の寄り付き(9:00 JST = 00:00 UTC)に Vercel Cron が叩く。
+ * その日のシグナルをntfyでスマホへ通知。
  * CRON_SECRET を設定すると Bearer 認証を必須化(Vercel Cronは自動付与)。
  */
 export async function GET(req: Request) {
