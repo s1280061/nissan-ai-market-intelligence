@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, LineChart, Newspaper, Globe2, Briefcase, FlaskConical } from "lucide-react";
+import { Activity, LineChart, Newspaper, Globe2, Briefcase, FlaskConical, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/", label: "Overview", icon: Activity },
   { href: "/dashboard", label: "Dashboard", icon: LineChart },
+  { href: "/features", label: "Features", icon: Layers },
   { href: "/news", label: "News", icon: Newspaper },
   { href: "/macro", label: "Macro", icon: Globe2 },
   { href: "/portfolio", label: "Portfolio", icon: Briefcase },

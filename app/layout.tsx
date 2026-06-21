@@ -18,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja">
       <body className="min-h-screen antialiased">
+        <div className="aurora" />
         <Navbar />
         <main className="animate-fade-in">{children}</main>
         <footer className="border-t border-white/[0.06] py-8">
