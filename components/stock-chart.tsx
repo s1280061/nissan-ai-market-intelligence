@@ -13,7 +13,8 @@ import {
 } from "recharts";
 import { Sparkles } from "lucide-react";
 import { useFetch } from "@/lib/use-fetch";
-import type { Prediction, Signal, StockResponse } from "@/lib/types";
+import type { HistoryResp, Prediction, Signal, StockResponse } from "@/lib/types";
+import { fiveLevel } from "@/lib/signal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn, formatNumber } from "@/lib/utils";
 
@@ -30,6 +31,14 @@ export function StockChart() {
   const [range, setRange] = useState<(typeof RANGES)[number]>("1M");
   const { data, loading, error } = useFetch<StockResponse>(`/api/stock?range=${range}`);
   const { data: pred } = useFetch<Prediction>("/api/prediction", 60000);
+  const { data: hist } = useFetch<HistoryResp>("/api/history?days=90");
+
+  // 日付 -> その日のAIシグナル色（過去の買い/キープ/売りをチャートに点で重ねる）
+  const signalByDate: Record<string, string> = {};
+  (hist?.history ?? []).forEach((h) => {
+    signalByDate[h.date] = fiveLevel(h.probability).color;
+  });
+  const showDots = ["1M", "3M", "1Y"].includes(range);
 
   const candles = data?.candles ?? [];
   const trendUp =
@@ -136,6 +145,27 @@ export function StockChart() {
               strokeWidth={2}
               fill="url(#g)"
               animationDuration={600}
+              dot={
+                showDots
+                  ? (p: { cx?: number; cy?: number; index?: number; payload?: { date?: string } }) => {
+                      const d = (p.payload?.date ?? "").slice(0, 10);
+                      const c = signalByDate[d];
+                      if (!c || p.cx == null || p.cy == null)
+                        return <circle key={p.index} r={0} fill="none" />;
+                      return (
+                        <circle
+                          key={p.index}
+                          cx={p.cx}
+                          cy={p.cy}
+                          r={3}
+                          fill={c}
+                          stroke="#05070a"
+                          strokeWidth={1}
+                        />
+                      );
+                    }
+                  : false
+              }
             />
 
             {/* AI予測: +5%ターゲットライン */}
@@ -175,6 +205,23 @@ export function StockChart() {
           マーカー色はAIシグナル（{pred.signal}・確率 {Math.round(pred.probability * 100)}%・5営業日以内）。
         </p>
       )}
+      {showDots && (hist?.history?.length ?? 0) > 0 && (
+        <div className="mt-1 flex flex-wrap items-center gap-3 text-[11px] text-white/40">
+          <span>各日の点 = その日のAIシグナル:</span>
+          <Legend color="#16e0a8" label="買い系" />
+          <Legend color="#e6b450" label="キープ" />
+          <Legend color="#ff4d5e" label="売り系" />
+        </div>
+      )}
     </div>
+  );
+}
+
+function Legend({ color, label }: { color: string; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1">
+      <span className="h-2 w-2 rounded-full" style={{ background: color }} />
+      {label}
+    </span>
   );
 }

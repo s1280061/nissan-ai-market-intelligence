@@ -62,6 +62,27 @@ export interface IndexQuote {
   spark: number[];
 }
 
+export interface HistoryRow {
+  date: string;
+  price: number;
+  probability: number;
+  futureRet5d: number | null;
+  actualUp: number | null;
+  correct: boolean | null;
+}
+
+export interface HistoryResp {
+  history: HistoryRow[];
+  summary: {
+    evaluated: number;
+    accuracy: number | null;
+    buySignals: number;
+    buyHitRate: number | null;
+    baseRate: number | null;
+    pending: number;
+  };
+}
+
 export interface NewsItem {
   id: string;
   title: string;

@@ -4,6 +4,7 @@ import { PredictionCard } from "@/components/prediction-card";
 import { ShapPanel } from "@/components/shap-panel";
 import { MetricsRow } from "@/components/metrics-row";
 import { AICommentary } from "@/components/ai-commentary";
+import { GlossarySection } from "@/components/glossary";
 import { Card } from "@/components/ui/card";
 import { PageContainer, PageHeading, SectionTitle } from "@/components/ui/section";
 
@@ -32,6 +33,8 @@ export default function DashboardPage() {
       </section>
 
       <ShapPanel />
+
+      <GlossarySection only={["shap", "atr", "volatility", "rsi", "macd", "+5%ターゲット"]} />
     </PageContainer>
   );
 }
