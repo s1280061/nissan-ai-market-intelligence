@@ -15,6 +15,7 @@
 - **Explainable AI** — SHAP Top5 をプラス要因／マイナス要因に分離表示
 - **Global Macro** — S&P500 / NASDAQ / USD/JPY / VIX / Nikkei225 をスパークライン付きで
 - **Market News** — NewsAPI 連携（カテゴリ・検索）。キー未設定でもモックで動作
+- **AI解説（生成AI）** — Groq Cloud(OpenAI互換)で「今日の状況・なぜこのシグナルか・注意点」を日本語で自動解説。キー未設定でもルールベース解説で動作
 - **Portfolio / Research** — 仮想ポートフォリオ損益、モデル情報・バックテスト結果
 - **UI** — Tesla / Bloomberg Terminal / Apple / TradingView を参考にしたガラスモーフィズム・ダークUI、アニメーション、レスポンシブ、ローディングスケルトン、エラーハンドリング
 
@@ -72,6 +73,9 @@ nissan-ai-market-intelligence/
 | `NEXT_PUBLIC_TICKER` | 任意 | 対象銘柄(既定 `7201.T`) |
 | `NEWS_API_KEY` | 任意 | [NewsAPI](https://newsapi.org/) のキー。未設定ならモックニュース |
 | `PREDICTION_API_URL` | 任意 | 実モデル予測APIのURL。未設定なら内蔵のバックテスト結果を返す |
+| `GROQ_API_KEY` | 任意 | [Groq Cloud](https://console.groq.com/keys) のキー。AI解説に使用。未設定でもルールベース解説で動作 |
+| `GROQ_MODEL` | 任意 | 既定 `llama-3.3-70b-versatile`(xAI Grok なら `grok-2-latest`) |
+| `GROQ_BASE_URL` | 任意 | 既定 `https://api.groq.com/openai/v1`(xAI Grok なら `https://api.x.ai/v1`) |
 
 ```bash
 cp .env.example .env.local

@@ -3,6 +3,7 @@ import { StockChart } from "@/components/stock-chart";
 import { PredictionCard } from "@/components/prediction-card";
 import { ShapPanel } from "@/components/shap-panel";
 import { MetricsRow } from "@/components/metrics-row";
+import { AICommentary } from "@/components/ai-commentary";
 import { Card } from "@/components/ui/card";
 import { PageContainer, PageHeading, SectionTitle } from "@/components/ui/section";
 
@@ -22,6 +23,8 @@ export default function DashboardPage() {
         </Card>
         <PredictionCard />
       </div>
+
+      <AICommentary />
 
       <section>
         <SectionTitle>AI Performance</SectionTitle>

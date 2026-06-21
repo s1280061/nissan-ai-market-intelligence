@@ -3,6 +3,7 @@ import { MetricsRow } from "@/components/metrics-row";
 import { StockChart } from "@/components/stock-chart";
 import { ShapPanel } from "@/components/shap-panel";
 import { MarketGrid } from "@/components/market-grid";
+import { AICommentary } from "@/components/ai-commentary";
 import { Card } from "@/components/ui/card";
 import { PageContainer, SectionTitle } from "@/components/ui/section";
 
@@ -22,6 +23,8 @@ export default function HomePage() {
           </Card>
           <ShapPanel />
         </section>
+
+        <AICommentary />
 
         <section>
           <SectionTitle>Global Macro</SectionTitle>
