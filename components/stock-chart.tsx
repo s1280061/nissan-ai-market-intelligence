@@ -4,26 +4,50 @@ import { useState } from "react";
 import {
   Area,
   AreaChart,
+  ReferenceDot,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
+import { Sparkles } from "lucide-react";
 import { useFetch } from "@/lib/use-fetch";
-import type { StockResponse } from "@/lib/types";
+import type { Prediction, Signal, StockResponse } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn, formatNumber } from "@/lib/utils";
 
 const RANGES = ["1D", "1W", "1M", "3M", "1Y", "5Y"] as const;
 
+const SIGNAL_COLOR: Record<Signal, string> = {
+  "Strong Buy": "#16e0a8",
+  Buy: "#16e0a8",
+  Neutral: "#e6b450",
+  Avoid: "#ff4d5e",
+};
+
 export function StockChart() {
   const [range, setRange] = useState<(typeof RANGES)[number]>("1M");
   const { data, loading, error } = useFetch<StockResponse>(`/api/stock?range=${range}`);
+  const { data: pred } = useFetch<Prediction>("/api/prediction", 60000);
 
   const candles = data?.candles ?? [];
-  const up =
+  const trendUp =
     candles.length > 1 ? candles[candles.length - 1].close >= candles[0].close : true;
-  const color = up ? "#16e0a8" : "#ff4d5e";
+  const color = trendUp ? "#16e0a8" : "#ff4d5e";
+
+  // --- AI予測シグナルのオーバーレイ ---
+  const last = candles[candles.length - 1];
+  const targetReturn = pred?.targetReturn ?? 0.05;
+  const targetPrice = last ? last.close * (1 + targetReturn) : 0;
+  const signalColor = pred ? SIGNAL_COLOR[pred.signal] : "#e6b450";
+  const closes = candles.map((c) => c.close);
+  const dataMin = closes.length ? Math.min(...closes) : 0;
+  const dataMax = closes.length ? Math.max(...closes) : 0;
+  const yDomain: [number, number] = [
+    dataMin * 0.99,
+    Math.max(dataMax, targetPrice) * 1.01,
+  ];
 
   return (
     <div>
@@ -31,6 +55,19 @@ export function StockChart() {
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-white/80">Price Chart</span>
           <span className="text-xs text-white/40">{data?.quote.symbol}</span>
+          {pred && (
+            <span
+              className="ml-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium"
+              style={{
+                color: signalColor,
+                borderColor: `${signalColor}40`,
+                background: `${signalColor}14`,
+              }}
+            >
+              <Sparkles className="h-3 w-3" />
+              AI {pred.signal} · {Math.round(pred.probability * 100)}%
+            </span>
+          )}
         </div>
         <div className="flex gap-1 rounded-lg bg-white/[0.04] p-1">
           {RANGES.map((r) => (
@@ -56,7 +93,7 @@ export function StockChart() {
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={candles} margin={{ top: 10, right: 8, left: 8, bottom: 0 }}>
+          <AreaChart data={candles} margin={{ top: 10, right: 56, left: 8, bottom: 0 }}>
             <defs>
               <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={color} stopOpacity={0.35} />
@@ -74,7 +111,7 @@ export function StockChart() {
               }
             />
             <YAxis
-              domain={["auto", "auto"]}
+              domain={yDomain}
               tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 10 }}
               tickLine={false}
               axisLine={false}
@@ -100,8 +137,43 @@ export function StockChart() {
               fill="url(#g)"
               animationDuration={600}
             />
+
+            {/* AI予測: +5%ターゲットライン */}
+            {pred && last && (
+              <ReferenceLine
+                y={targetPrice}
+                stroke={signalColor}
+                strokeDasharray="5 4"
+                strokeOpacity={0.7}
+                label={{
+                  value: `+${Math.round(targetReturn * 100)}% target ¥${formatNumber(targetPrice, 0)}`,
+                  position: "insideTopRight",
+                  fill: signalColor,
+                  fontSize: 10,
+                }}
+              />
+            )}
+            {/* AI予測: 直近価格のシグナルマーカー */}
+            {pred && last && (
+              <ReferenceDot
+                x={last.date}
+                y={last.close}
+                r={5}
+                fill={signalColor}
+                stroke="#05070a"
+                strokeWidth={2}
+                isFront
+              />
+            )}
           </AreaChart>
         </ResponsiveContainer>
+      )}
+
+      {pred && (
+        <p className="mt-3 text-[11px] text-white/35">
+          点線は現在値から <span style={{ color: signalColor }}>+{Math.round(targetReturn * 100)}%</span> の目標水準。
+          マーカー色はAIシグナル（{pred.signal}・確率 {Math.round(pred.probability * 100)}%・5営業日以内）。
+        </p>
       )}
     </div>
   );

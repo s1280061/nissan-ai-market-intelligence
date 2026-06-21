@@ -94,19 +94,35 @@ npm start
 
 > 株価・指数は Yahoo Finance から取得するため、初回アクセス時はネットワーク接続が必要です。
 
-## ▲ Vercel デプロイ手順
+## ▲ 本番デプロイ（Vercel + Render）
 
-1. このディレクトリを Git リポジトリにして GitHub などへ push
-   ```bash
-   git init && git add -A && git commit -m "init: Nissan AI Market Intelligence"
-   git remote add origin <your-repo-url> && git push -u origin main
-   ```
-2. [Vercel](https://vercel.com/new) で「Import Project」→ 当該リポジトリを選択
-3. Framework Preset は **Next.js** が自動検出される(設定不要)
-4. **Environment Variables** に `NEWS_API_KEY`(任意)などを追加
-5. **Deploy** を押すと数分でURLが発行される
+2リポジトリ構成。フロントを Vercel、推論API(FastAPI/LightGBM)を Render にデプロイする。
 
-> API Routes は Node.js runtime（`yahoo-finance2` 利用のため）。Vercel の Serverless Functions で動作します。
+| 役割 | リポジトリ | デプロイ先 |
+|---|---|---|
+| フロント (Next.js) | https://github.com/s1280061/nissan-ai-market-intelligence | **Vercel** |
+| 推論API (FastAPI) | https://github.com/s1280061/nissan-prediction-api | **Render** |
+
+### 1) Render に FastAPI をデプロイ（先に実施）
+1. [Render Dashboard](https://dashboard.render.com/) → **New → Web Service**
+2. `s1280061/nissan-prediction-api` を接続（`render.yaml` を自動検出: Docker / `healthCheckPath: /health`）
+3. デプロイ後の URL を控える（例 `https://nissan-prediction-api.onrender.com`）
+4. `GET /health` が `{"status":"ok"}` を返せば成功
+
+### 2) Vercel に Next.js をデプロイ
+1. [Vercel](https://vercel.com/new) → `s1280061/nissan-ai-market-intelligence` を Import
+2. Framework Preset は **Next.js** が自動検出（設定不要）
+3. **Environment Variables** を追加:
+   | Key | Value |
+   |---|---|
+   | `PREDICTION_API_URL` | Render の URL（末尾スラッシュ不要） |
+   | `NEWS_API_KEY` | （任意）NewsAPI のキー |
+4. **Deploy** → 発行された URL で公開
+
+`PREDICTION_API_URL` 設定後、`/api/prediction` は自動で Render の `/predict`（実LightGBM推論）を呼びます。
+未設定・接続失敗時は内蔵のバックテスト値にフォールバックするため、アプリは常に動作します。
+
+> Next.js の API Routes は Node.js runtime（Yahoo Finance を直接 fetch）。Vercel の Serverless Functions で動作します。
 
 ## 🧠 予測モデルについて
 
