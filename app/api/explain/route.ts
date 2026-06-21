@@ -6,6 +6,7 @@ import { formatNumber, formatPct } from "@/lib/utils";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 const TICKER = process.env.NEXT_PUBLIC_TICKER || "7201.T";
 // Groq Cloud (OpenAI互換)。xAI Grok を使う場合は BASE_URL/MODEL を上書き。

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 // FastAPI の /history（out-of-sample 実績）をプロキシ。
 export async function GET(req: Request) {
@@ -18,7 +19,7 @@ export async function GET(req: Request) {
   }
   try {
     const controller = new AbortController();
-    const t = setTimeout(() => controller.abort(), 25000);
+    const t = setTimeout(() => controller.abort(), 55000);
     const r = await fetch(`${base.replace(/\/$/, "")}/history?days=${days}`, {
       cache: "no-store",
       signal: controller.signal,

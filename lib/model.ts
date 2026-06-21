@@ -2,8 +2,9 @@ import type { Prediction, Signal } from "./types";
 
 // 実バックテスト(LightGBM, Walk-Forward, 13.2年)の結果を反映した予測ペイロード。
 // 確率は最新の特徴量にもとづくモデル出力(将来 PREDICTION_API_URL で実モデルに差し替え可)。
-// 最新の予測確率(Buy判定: 0.65以上)。実モデル差し替え時は PREDICTION_API_URL を使用。
-export const CURRENT_PROBABILITY = 0.66;
+// API接続失敗時のみ使う中立フォールバック(キープ相当)。通常は実モデル(PREDICTION_API_URL)の値。
+// 端末間でブレないよう、買い/売りに寄らない中立値にしておく。
+export const CURRENT_PROBABILITY = 0.5;
 
 export function signalFromProbability(p: number): { signal: Signal; confidence: "High" | "Medium" | "Low" } {
   let signal: Signal;

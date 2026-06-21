@@ -10,7 +10,8 @@ export async function getPrediction(): Promise<Prediction & { source: string }> 
   if (base) {
     try {
       const controller = new AbortController();
-      const t = setTimeout(() => controller.abort(), 12000);
+      // Render無料枠のコールドスタート(最大~50s)でもフォールバックに落とさず実値を返す
+      const t = setTimeout(() => controller.abort(), 55000);
       const r = await fetch(`${base.replace(/\/$/, "")}/predict`, {
         cache: "no-store",
         signal: controller.signal,

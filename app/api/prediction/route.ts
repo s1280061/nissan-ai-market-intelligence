@@ -3,6 +3,7 @@ import { getPrediction } from "@/lib/prediction-source";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60; // Render コールドスタートを待てるように
 
 // PREDICTION_API_URL が設定されていれば FastAPI(LightGBM)へプロキシ。
 // 未設定・失敗時は内蔵のバックテスト結果にフォールバック。
